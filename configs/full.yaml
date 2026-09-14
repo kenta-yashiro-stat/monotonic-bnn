@@ -1,0 +1,28 @@
+seed: 12081999
+replications: 50
+visualization_replications: 5
+output_dir: results/full
+
+data:
+  sample_sizes: {small: 50, large: 200}
+  noise_levels: {low: 0.20, high: 0.60}
+  scenarios: [correct, partially_misspecified, misspecified]
+  train_bounds: [-1.0, 1.0]
+  evaluation_bounds: [-2.0, 2.0]
+  grid_size: 50 # grid size for evaluation of the posterior predictive distribution. The number of evaluation points is grid_size^2.
+
+model:
+  hidden_dim: 10
+  prior_c: 1.0
+  bias_scale: 1.0
+  soft_lambdas: [10.0, 100.0, 1000.0]
+  soft_tau: 0.10
+  constraint_grid_size: 15 # grid size for calculating the penalty term in the loss function
+
+mcmc:
+  warmup: 1000
+  samples: 1000
+  chains: 4
+  target_accept_prob: 0.90
+  max_tree_depth: 10
+

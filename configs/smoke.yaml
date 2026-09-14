@@ -1,0 +1,27 @@
+seed: 20260812
+replications: 1
+output_dir: results/smoke
+
+data:
+  sample_sizes: {small: 20}
+  noise_levels: {low: 0.20}
+  scenarios: [correct, partially_misspecified, misspecified]
+  train_bounds: [-1.0, 1.0]
+  evaluation_bounds: [-2.0, 2.0]
+  grid_size: 12
+
+model:
+  hidden_dim: 4
+  prior_c: 1.0
+  bias_scale: 1.0
+  soft_lambdas: [1.0, 10.0, 100.0]
+  soft_tau: 0.10
+  constraint_grid_size: 6
+
+mcmc:
+  warmup: 20
+  samples: 20
+  chains: 1
+  target_accept_prob: 0.85
+  max_tree_depth: 6
+

@@ -1,0 +1,13 @@
+seed: 20260812
+output_dir: results/prior_checks
+
+model_kinds: [standard, hard]
+c_values: [0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
+num_samples: 100
+hidden_dim: 10
+bias_scale: 1.0
+input_bounds: [-2.0, 2.0]
+grid_size: 100
+saturation_threshold: 3.0
+heatmap_functions: 3
+

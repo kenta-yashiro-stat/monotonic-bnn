@@ -1,0 +1,28 @@
+seed: 12081999
+replications: 2
+visualization_replications: 1
+output_dir: results/pilot
+
+data:
+  sample_sizes: {small: 50, large: 200}
+  noise_levels: {low: 0.20, high: 0.60}
+  scenarios: [correct, partially_misspecified, misspecified]
+  train_bounds: [-1.0, 1.0]
+  evaluation_bounds: [-2.0, 2.0]
+  grid_size: 35
+
+model:
+  hidden_dim: 10
+  prior_c: 1.0
+  bias_scale: 1.0
+  soft_lambdas: [10.0, 100.0, 1000.0]
+  soft_tau: 0.10
+  constraint_grid_size: 12
+
+mcmc:
+  warmup: 1000
+  samples: 1000
+  chains: 2
+  target_accept_prob: 0.90
+  max_tree_depth: 10
+
