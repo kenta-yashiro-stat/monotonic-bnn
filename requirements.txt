@@ -1,3 +1,5 @@
+## Requirements for the project
+
 jax[cpu]>=0.4.30
 numpyro>=0.15.0
 numpy>=1.26

@@ -1,3 +1,7 @@
+# This .gitignore file specifies intentionally untracked files to ignore in the Git repository. 
+# It includes directories and file patterns that are commonly generated during development and testing, ]
+# such as virtual environments, compiled Python files, and test result caches.
+
 .venv/
 __pycache__/
 *.py[cod]

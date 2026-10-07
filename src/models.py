@@ -8,24 +8,24 @@ import jax.numpy as jnp
 import numpyro
 import numpyro.distributions as dist
 
-
+# Define a normal weight prior with a specified scale.
 def _normal_weight(name: str, shape: tuple[int, ...], c: float, d_in: int):
     scale = c / jnp.sqrt(float(d_in))
     return numpyro.sample(name, dist.Normal(0.0, scale).expand(shape).to_event(len(shape)))
 
-
+# Define a positive weight prior using a half-normal distribution for Hard monotonicity constraints.
 def _positive_weight(name: str, shape: tuple[int, ...], c: float, d_in: int):
     """Positive half-normal prior; support is handled directly by NUTS."""
     scale = c / jnp.sqrt(float(d_in))
     return numpyro.sample(name, dist.HalfNormal(scale).expand(shape).to_event(len(shape)))
 
-
+# Define the forward pass for Naive and Soft constrained neural network model.
 def standard_forward(params: dict, x: jnp.ndarray) -> jnp.ndarray:
     h1 = jnp.tanh(x @ params["w1"] + params["b1"])
     h2 = jnp.tanh(h1 @ params["w2"] + params["b2"])
     return (h2 @ params["w3"] + params["b3"]).squeeze(-1)
 
-
+# Define the forward pass for a hard monotonicity constrained neural network model.
 def hard_forward(params: dict, x: jnp.ndarray) -> jnp.ndarray:
     # The x1 row and all downstream weights are positive. Since tanh is
     # increasing, every path derivative from x1 to the output is non-negative.
@@ -35,7 +35,7 @@ def hard_forward(params: dict, x: jnp.ndarray) -> jnp.ndarray:
     h2 = jnp.tanh(h1 @ params["w2"] + params["b2"])
     return (h2 @ params["w3"] + params["b3"]).squeeze(-1)
 
-
+# Define the Bayesian neural network model for Naive and Soft constrained models.
 def _standard_parameters(hidden_dim: int, prior_c: float, bias_scale: float):
     h = hidden_dim
     return {
@@ -47,7 +47,7 @@ def _standard_parameters(hidden_dim: int, prior_c: float, bias_scale: float):
         "b3": numpyro.sample("b3", dist.Normal(0, bias_scale)),
     }
 
-
+# Define the Bayesian neural network model for Hard monotonicity constrained models.
 def _hard_parameters(hidden_dim: int, prior_c: float, bias_scale: float):
     h = hidden_dim
     return {
@@ -60,7 +60,7 @@ def _hard_parameters(hidden_dim: int, prior_c: float, bias_scale: float):
         "b3": numpyro.sample("b3", dist.Normal(0, bias_scale)),
     }
 
-
+# Define the Bayesian neural network model, which can be either Naive, Soft, or Hard constrained based on the specified model kind.
 def bnn_model(
     x: jnp.ndarray,
     y: jnp.ndarray | None = None,
@@ -94,18 +94,18 @@ def bnn_model(
     with numpyro.plate("observations", x.shape[0]):
         numpyro.sample("y", dist.Normal(mean, sigma_obs), obs=y)
 
-
+# Return the appropriate forward function based on the model kind.
 def forward_for_kind(model_kind: str):
     return hard_forward if model_kind == "hard" else standard_forward
 
-
+# Compute the posterior latent values for a given set of samples and input points.
 def posterior_latent(samples: dict, x: jnp.ndarray, model_kind: str) -> jnp.ndarray:
     forward = forward_for_kind(model_kind)
     parameter_names = [k for k in samples if k != "sigma_obs"]
     params = {k: samples[k] for k in parameter_names}
     return jax.vmap(lambda p: forward(p, x))(params)
 
-
+# Compute the posterior derivatives for a given set of samples and input points.
 def posterior_derivatives(samples: dict, x: jnp.ndarray, model_kind: str, chunk_size: int = 250) -> np.ndarray:
     forward = forward_for_kind(model_kind)
     parameter_names = [k for k in samples if k != "sigma_obs"]

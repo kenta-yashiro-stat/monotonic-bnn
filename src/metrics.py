@@ -5,11 +5,14 @@ import math
 import numpy as np
 import pandas as pd
 from scipy.special import logsumexp
+from numpyro.diagnostics import summary as diagnostic_summary
+from numpyro.infer import MCMC
 
-
+# Compute the 95% credible interval for a given set of samples.
 def _interval(samples: np.ndarray, level: float = 0.95):
     alpha = (1.0 - level) / 2.0
     return np.quantile(samples, [alpha, 1.0 - alpha], axis=0)
+
 
 def _crps_ensemble(samples: np.ndarray, truth: np.ndarray) -> np.ndarray:
     n = samples.shape[0]
@@ -19,6 +22,7 @@ def _crps_ensemble(samples: np.ndarray, truth: np.ndarray) -> np.ndarray:
     second_term = np.sum(coefficients * sorted_samples, axis=0) / n**2
     return first_term - second_term
 
+# Evaluate the performance of the model in a specific region.
 def evaluate_region(
     latent_draws: np.ndarray,
     sigma_draws: np.ndarray,
@@ -72,7 +76,46 @@ def evaluate_region(
         "derivative_violation_magnitude": float(np.mean(np.abs(negative))),
     }
 
+# Compute MCMC diagnostics for a given MCMC object, including R-hat, effective sample size, divergences, and tree depth hit rate.
+def mcmc_diagnostics(mcmc: MCMC, max_tree_depth: int) -> dict[str, float]:
+    grouped = mcmc.get_samples(group_by_chain=True)
+    stats = diagnostic_summary(grouped, group_by_chain=True)
 
+    rhat_values = np.concatenate([
+        np.asarray(value["r_hat"], dtype=float).ravel()
+        for value in stats.values()
+    ])
+    ess_values = np.concatenate([
+        np.asarray(value["n_eff"], dtype=float).ravel()
+        for value in stats.values()
+    ])
+
+    # R-hat is undefined for one chain, so retain only finite values.
+    finite_rhat = rhat_values[np.isfinite(rhat_values)]
+    finite_ess = ess_values[np.isfinite(ess_values)]
+
+    # Report the worst diagnostic values across all parameter elements.
+    rhat_max = float(np.max(finite_rhat)) if finite_rhat.size else np.nan
+    ess_min = float(np.min(finite_ess)) if finite_ess.size else np.nan
+
+    extra = mcmc.get_extra_fields(group_by_chain=True)
+
+    # Count post-warmup divergent transitions.
+    divergences = float(np.asarray(extra["diverging"]).sum())
+
+    # Calculate the proportion of draws that reached the tree-depth limit.
+    num_steps = np.asarray(extra.get("num_steps", [np.nan]), dtype=float)
+    maximum_num_steps = 2**max_tree_depth - 1
+    tree_depth_hit_rate = float(np.mean(num_steps >= maximum_num_steps))
+
+    return {
+        "rhat_max": rhat_max,
+        "ess_min": ess_min,
+        "divergences": divergences,
+        "tree_depth_hit_rate": tree_depth_hit_rate,
+    }
+
+# Summarize metrics across replications, computing means, standard deviations, and Monte Carlo standard errors for each metric.
 def summarize_metrics(raw: pd.DataFrame) -> pd.DataFrame:
     id_cols = [
         "model", "lambda", "scenario", "sample_size_level", "n_train",

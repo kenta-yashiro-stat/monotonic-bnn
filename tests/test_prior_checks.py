@@ -4,7 +4,7 @@ import numpy as np
 
 from src.prior_checks import make_grid
 
-
+# Unit tests for the prior checks module, ensuring correct functionality of grid generation for prior predictive checks.
 class TestPriorChecks(unittest.TestCase):
     def test_grid_shape(self):
         grid, axis = make_grid((-2.0, 2.0), 11)

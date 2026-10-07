@@ -15,21 +15,20 @@ import jax.numpy as jnp
 import numpy as np
 import pandas as pd
 import yaml
-from numpyro.diagnostics import summary as diagnostic_summary
 from numpyro.infer import MCMC, NUTS
 
 from .data import Standardizer, evaluation_grid, generate_dataset, true_function
-from .metrics import evaluate_region, summarize_metrics
+from .metrics import mcmc_diagnostics, evaluate_region, summarize_metrics
 from .models import bnn_model, posterior_derivatives, posterior_latent
 
-
+# Run the Bayesian neural network experiments based on the provided configuration.
 def model_specs(soft_lambdas: list[float]):
     yield "naive", "naive", np.nan
     for value in soft_lambdas:
         yield f"soft_{value:g}", "soft", float(value)
     yield "hard", "hard", np.nan
 
-
+# Generate a grid of constraint points for the soft monotonicity constraint.
 def constraint_grid(x_std: np.ndarray, size: int) -> np.ndarray:
     lo, hi = x_std.min(axis=0), x_std.max(axis=0)
     a = np.linspace(lo[0], hi[0], size)
@@ -37,45 +36,7 @@ def constraint_grid(x_std: np.ndarray, size: int) -> np.ndarray:
     aa, bb = np.meshgrid(a, b, indexing="xy")
     return np.column_stack([aa.ravel(), bb.ravel()])
 
-
-def _diagnostics(mcmc: MCMC, max_tree_depth: int) -> dict[str, float]:
-    grouped = mcmc.get_samples(group_by_chain=True)
-    stats = diagnostic_summary(grouped, group_by_chain=True)
-
-    rhat_values = np.concatenate([
-        np.asarray(value["r_hat"], dtype=float).ravel()
-        for value in stats.values()
-    ])
-    ess_values = np.concatenate([
-        np.asarray(value["n_eff"], dtype=float).ravel()
-        for value in stats.values()
-    ])
-
-    # R-hat is undefined for one chain, so retain only finite values.
-    finite_rhat = rhat_values[np.isfinite(rhat_values)]
-    finite_ess = ess_values[np.isfinite(ess_values)]
-
-    # Report the worst diagnostic values across all parameter elements.
-    rhat_max = float(np.max(finite_rhat)) if finite_rhat.size else np.nan
-    ess_min = float(np.min(finite_ess)) if finite_ess.size else np.nan
-
-    extra = mcmc.get_extra_fields(group_by_chain=True)
-
-    # Count post-warmup divergent transitions.
-    divergences = float(np.asarray(extra["diverging"]).sum())
-
-    # Calculate the proportion of draws that reached the tree-depth limit.
-    num_steps = np.asarray(extra.get("num_steps", [np.nan]), dtype=float)
-    maximum_num_steps = 2**max_tree_depth - 1
-    tree_depth_hit_rate = float(np.mean(num_steps >= maximum_num_steps))
-
-    return {
-        "rhat_max": rhat_max,
-        "ess_min": ess_min,
-        "divergences": divergences,
-        "tree_depth_hit_rate": tree_depth_hit_rate,
-    }
-
+# Save the data for the visualization for a specific replication and experimental condition to a compressed NPZ file. But this wan't used for my thesis.
 def _save_visualization_npz(
     config: dict,
     rep: int,
@@ -120,7 +81,7 @@ def _save_visualization_npz(
 
     np.savez_compressed(rep_dir / filename, **payload)
 
-
+# Run the Bayesian neural network experiments based on the provided configuration.
 def run(config: dict, filters: dict[str, set[str]] | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     filters = filters or {}
     data_cfg, model_cfg, mcmc_cfg = config["data"], config["model"], config["mcmc"]
@@ -178,7 +139,7 @@ def run(config: dict, filters: dict[str, set[str]] | None = None) -> tuple[pd.Da
                     extra_fields=("diverging", "num_steps"),
                 )
 
-                diagnostics = _diagnostics(mcmc, int(mcmc_cfg["max_tree_depth"]))
+                diagnostics = mcmc_diagnostics(mcmc, int(mcmc_cfg["max_tree_depth"]))
 
                 runtime = time.perf_counter() - started
                 samples = mcmc.get_samples(group_by_chain=False)

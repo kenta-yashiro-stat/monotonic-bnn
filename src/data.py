@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import numpy as np
 
-
+# Define the true underlying function based on the specified scenario.
 def true_function(x: np.ndarray, scenario: str) -> np.ndarray:
     x1, x2 = x[..., 0], x[..., 1]
     if scenario == "correct":
@@ -13,7 +13,7 @@ def true_function(x: np.ndarray, scenario: str) -> np.ndarray:
         return -0.7 * x1 - 0.15 * x1**3 + 0.5 * np.sin(np.pi * x2)
     raise ValueError(f"Unknown scenario: {scenario}")
 
-
+# Standardizer for normalizing input and output variables.
 @dataclass(frozen=True)
 class Standardizer:
     x_mean: np.ndarray
@@ -35,7 +35,7 @@ class Standardizer:
     def transform_y(self, y: np.ndarray) -> np.ndarray:
         return (y - self.y_mean) / self.y_sd
 
-
+# Generate a synthetic dataset based on the scenario, sample size, and noise level.
 def generate_dataset(
     rng: np.random.Generator,
     n: int,
@@ -48,7 +48,7 @@ def generate_dataset(
     y = f + rng.normal(0.0, noise_sd, size=n)
     return x, y, f
 
-
+# Create a grid of evaluation points and classify them as interpolation or extrapolation based on training bounds.
 def evaluation_grid(
     bounds: tuple[float, float], grid_size: int, train_bounds: tuple[float, float]
 ) -> tuple[np.ndarray, np.ndarray]:

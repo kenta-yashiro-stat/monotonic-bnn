@@ -6,7 +6,7 @@ import pandas as pd
 from src.data import Standardizer, evaluation_grid, true_function
 from src.metrics import summarize_metrics
 
-
+# Unit tests for the data and metrics modules, ensuring correct functionality of true function evaluation, standardization, grid generation, and metric summarization.
 class TestDataAndMetrics(unittest.TestCase):
     def test_correct_function_is_monotone(self):
         x1 = np.linspace(-2, 2, 1001)

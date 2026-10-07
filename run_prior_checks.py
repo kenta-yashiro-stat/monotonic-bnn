@@ -7,14 +7,14 @@ import yaml
 
 from src.prior_checks import run_prior_checks
 
-
+# Run prior predictive checks for the Bayesian neural network based on the provided configuration file and optional command-line arguments.
 def parse_args():
     parser = argparse.ArgumentParser(description="Run prior predictive checks for the BNN.")
     parser.add_argument("--config", type=Path, default=Path("configs/prior_check.yaml"))
     parser.add_argument("--c-values", type=float, nargs="+", help="Override c values from the config file.")
     return parser.parse_args()
 
-
+# Main function to execute the prior predictive checks based on the provided configuration file and optional command-line arguments.
 def main():
     args = parse_args()
     with args.config.open(encoding="utf-8") as stream:

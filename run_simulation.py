@@ -7,7 +7,7 @@ import yaml
 
 from src.experiment import run, save_results
 
-
+# Run the monotonic Bayesian neural network simulation based on the provided configuration file and optional command-line arguments.
 def parse_args():
     parser = argparse.ArgumentParser(description="Run the monotonic BNN simulation.")
     parser.add_argument("--config", required=True, type=Path)
@@ -17,7 +17,7 @@ def parse_args():
     parser.add_argument("--noise-levels", nargs="+")
     return parser.parse_args()
 
-
+# Main function to execute the monotonic Bayesian neural network simulation based on the provided configuration file and optional command-line arguments.
 def main():
     args = parse_args()
     with args.config.open(encoding="utf-8") as stream:

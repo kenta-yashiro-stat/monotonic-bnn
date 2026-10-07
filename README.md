@@ -9,17 +9,17 @@ This study investigates how incorporating monotonicity information into Bayesian
 The models are evaluated under correctly specified, partially misspecified, and misspecified monotonicity assumptions. The experimental design additionally varies sample size and observation noise and distinguishes between interpolation within the training domain and extrapolation beyond it. This design makes it possible to examine how the effects of monotonicity constraints on predictive accuracy and uncertainty quantification vary with constraint validity, data availability, noise level, and prediction region.
 
 
-Posterior inference for all models is performed using the No-U-Turn Sampler (NUTS), implemented in Python with JAX and NumPyro. Performance is assessed using measures of point prediction, probabilistic prediction, latent-function uncertainty, epistemic and aleatoric uncertainty, monotonicity, and MCMC convergence.
+Posterior inference for all models is performed using the No-U-Turn Sampler (NUTS), implemented in Python with JAX and NumPyro. Performance is assessed using measures of point prediction, probabilistic prediction, latent-function uncertainty, epistemic and aleatoric uncertainty, monotonicity adherence, and MCMC diagnostics.
 
 ## Key findings
 
 - Under correct specification, the hard-constrained BNN achieved the lowest
-  RMSE and narrower latent intervals during interpolation while maintaining
+  RMSE and NLPD and narrower latent intervals during interpolation while maintaining
   predictive coverage close to the nominal 95% level. These benefits were
   also observed in the small-sample, high-noise setting, where the valid
   constraint provided useful structural information despite the limited
   information available from the data. During extrapolation, the hard-constrained model produced greater epistemic
-  uncertainty than the other models but also achieved lower RMSE and higher
+  uncertainty and latent interval width than the other models but also achieved lower RMSE and NLPD and higher
   latent-function coverage. The valid constraint therefore supported a more
   appropriate representation of uncertainty beyond the observed data rather
   than uniformly narrowing posterior uncertainty.
@@ -70,15 +70,24 @@ monotonic-bnn/
 └── .gitignore
 ```
 
-The repository includes:
+The main files and their roles are:
 
-- Prior predictive checks
-- Simulated data generation
-- Unconstrained, soft-constrained, and hard-constrained BNNs
-- Posterior inference and prediction
-- Interpolation and extrapolation evaluation
-- Predictive and uncertainty metrics
-- Monotonicity and MCMC diagnostics
+- configs/*.yaml — Contains configuration files for the prior checks, smoke tests, pilot runs, and full simulation study.
+- src/data.py — Generates the simulated datasets for the correctly specified, partially misspecified, and misspecified scenarios, and handles data standardization.
+
+- src/models.py — Defines the unconstrained, soft-constrained, and hard-constrained Bayesian neural network models.
+
+- src/experiment.py — Handles posterior inference, posterior prediction, and the main simulation workflow across experimental conditions and replications.
+
+- src/metrics.py — Computes predictive accuracy and uncertainty measures, interpolation/extrapolation summaries, monotonicity adherence, and MCMC diagnostics.
+
+- src/prior_checks.py — Implements the prior predictive checks used to examine the behavior of the BNN priors under different prior-scale settings.
+
+- tests/ — Contains automated tests for data generation, metric calculations, and prior-check functionality.
+
+- run_prior_checks.py — Entry point for running the prior predictive checks.
+
+- run_simulation.py — Entry point for running the simulation experiments.
 
 ## Installation
 
@@ -110,7 +119,7 @@ Run the full simulation:
 python run_simulation.py --config configs/full.yaml
 ```
 
-> The full experiment involves 3,000 NUTS fits and is computationally intensive.
+The full experiment involves 3,000 NUTS fits and is computationally intensive.
 
 ## Configurations
 
@@ -140,9 +149,7 @@ replications, resulting in $12 \times 5 \times 50 = 3{,}000$ model fits.
 
 ## Constraint implementations
 
-The soft-constrained models penalize negative partial derivatives with respect
-to $x_1$. The hard-constrained model guarantees monotonicity in $x_1$
-through nonnegative path weights.
+The soft-constrained models penalize negative partial derivatives with respect to $x_1$. The hard-constrained model guarantees monotonicity in $x_1$ through nonnegative path weights. No monotonicity is imposed on $x_2$.
 
 ## Posterior inference
 
@@ -176,4 +183,4 @@ configuration file. The principal outputs are:
 - `run_config.yaml`: Configuration used for the run
 
 The reported metrics cover predictive accuracy, interval calibration,
-epistemic and aleatoric uncertainty, monotonicity adherence, and MCMC quality.
+epistemic and aleatoric uncertainty, monotonicity adherence, and MCMC diagnostics.

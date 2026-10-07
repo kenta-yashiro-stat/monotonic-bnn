@@ -8,14 +8,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
+# Define a grid of input points for evaluating the prior predictive distribution of the model.
 def make_grid(bounds: tuple[float, float], grid_size: int) -> tuple[jnp.ndarray, np.ndarray]:
     axis = np.linspace(bounds[0], bounds[1], grid_size)
     x1, x2 = np.meshgrid(axis, axis, indexing="xy")
     grid = np.column_stack([x1.ravel(), x2.ravel()])
     return jnp.asarray(grid), axis
 
-
+# Sample from the prior distribution for Naive and Soft constrained models.
 def sample_standard_prior(
     key, num_samples: int, hidden_dim: int, c: float, bias_scale: float
 ) -> dict:
@@ -31,7 +31,7 @@ def sample_standard_prior(
         "b3": jax.random.normal(keys[5], (num_samples,)) * bias_scale,
     }
 
-
+# Sample from the hard prior distribution.
 def sample_hard_prior(
     key, num_samples: int, hidden_dim: int, c: float, bias_scale: float
 ) -> dict:
@@ -48,7 +48,7 @@ def sample_hard_prior(
         "b3": jax.random.normal(keys[6], (num_samples,)) * bias_scale,
     }
 
-
+# Evaluate the prior predictive distribution for Naive and Soft constrained models and compute various metrics for the prior checks.
 def evaluate_standard_sample(params: dict, grid: jnp.ndarray):
     z1 = grid @ params["w1"] + params["b1"]
     h1 = jnp.tanh(z1)
@@ -64,7 +64,7 @@ def evaluate_standard_sample(params: dict, grid: jnp.ndarray):
     gradient_x1 = jax.vmap(jax.grad(scalar_function))(grid)[:, 0]
     return output, gradient_x1, z1, z2
 
-
+# Evaluate the prior predictive distribution for Hard constrained models and compute various metrics for the prior checks.
 def evaluate_hard_sample(params: dict, grid: jnp.ndarray):
     w1 = jnp.concatenate([params["w1_x1"], params["w1_x2"]], axis=0)
     z1 = grid @ w1 + params["b1"]
@@ -81,7 +81,7 @@ def evaluate_hard_sample(params: dict, grid: jnp.ndarray):
     gradient_x1 = jax.vmap(jax.grad(scalar_function))(grid)[:, 0]
     return output, gradient_x1, z1, z2
 
-
+# Evaluate the prior predictive distribution for a given set of samples and input points.
 def evaluate_prior(
     params: dict,
     grid: jnp.ndarray,
@@ -133,7 +133,7 @@ def evaluate_prior(
 
     return metrics, outputs_np
 
-
+# Save a heatmap panel showing the prior functions for different constraint values.
 def save_heatmap_panel(
     outputs_by_c: dict[float, np.ndarray],
     axis: np.ndarray,
@@ -224,7 +224,7 @@ def save_heatmap_panel(
 
     plt.close(fig)
 
-
+# Run prior checks for the specified model kinds and constraint values, generating heatmaps and metrics for each combination.
 def run_prior_checks(config: dict) -> pd.DataFrame:
     output_dir = Path(config["output_dir"])
     output_dir.mkdir(parents=True, exist_ok=True)
