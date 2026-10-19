@@ -6,3 +6,6 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+/results/*
+!/results/full/
+/results/full/visualization/

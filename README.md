@@ -35,11 +35,6 @@ monotonic-bnn/
 │
 ├── results/
 │   └── full/
-│       ├── figures/
-│       ├── visualization/
-│       │   ├── rep_000/
-│       │   ├── rep_001/
-│       │   └── ...
 │       ├── raw_metrics.csv
 │       ├── summary_metrics.csv
 │       └── run_config.yaml
@@ -77,7 +72,7 @@ The main files and their roles are:
 - run_simulation.py — Entry point for running the simulation experiments.
 
 
-Only the results from the final full simulation study are retained in the results/ directory. Given the substantial computational cost of the full simulation, these results are included for reference and verification without requiring the entire experiment to be rerun. Intermediate outputs from smoke tests, pilot runs, and prior predictive checks are excluded. However, the corresponding source code and configuration files are preserved to support reproducibility.
+For this repository, the result tables from the final full simulation study (raw_metrics.csv and summary_metrics.csv) are retained, together with the corresponding run configuration (run_config.yaml). Given the substantial computational cost of the full simulation, these files are provided for reference and verification without requiring the entire experiment to be rerun. The large replication-specific visualization outputs, as well as intermediate results from smoke tests, pilot runs, and prior predictive checks, are excluded. However, the corresponding source code and configuration files are preserved to support reproducibility.
 
 
 ## Installation
