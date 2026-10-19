@@ -8,35 +8,17 @@ This study investigates how incorporating monotonicity information into Bayesian
 
 The models are evaluated under correctly specified, partially misspecified, and misspecified monotonicity assumptions. The experimental design additionally varies sample size and observation noise and distinguishes between interpolation within the training domain and extrapolation beyond it. This design makes it possible to examine how the effects of monotonicity constraints on predictive accuracy and uncertainty quantification vary with constraint validity, data availability, noise level, and prediction region.
 
-
 Posterior inference for all models is performed using the No-U-Turn Sampler (NUTS), implemented in Python with JAX and NumPyro. Performance is assessed using measures of point prediction, probabilistic prediction, latent-function uncertainty, epistemic and aleatoric uncertainty, monotonicity adherence, and MCMC diagnostics.
 
 ## Key findings
 
-- Under correct specification, the hard-constrained BNN achieved the lowest
-  RMSE and NLPD and narrower latent intervals during interpolation while maintaining
-  predictive coverage close to the nominal 95% level. These benefits were
-  also observed in the small-sample, high-noise setting, where the valid
-  constraint provided useful structural information despite the limited
-  information available from the data. During extrapolation, the hard-constrained model produced greater epistemic
-  uncertainty and latent interval width than the other models but also achieved lower RMSE and NLPD and higher
-  latent-function coverage. The valid constraint therefore supported a more
-  appropriate representation of uncertainty beyond the observed data rather
-  than uniformly narrowing posterior uncertainty.
+- Under correct specification, the hard-constrained BNN achieved the lowest RMSE and NLPD and narrower latent intervals during interpolation while maintaining predictive coverage close to the nominal 95% level. These benefits were also observed in the small-sample, high-noise setting, where the valid constraint provided useful structural information despite the limited information available from the data. During extrapolation, the hard-constrained model produced greater epistemic uncertainty and latent interval width than the other models but also achieved lower RMSE and NLPD and higher latent-function coverage. The valid constraint therefore supported a more appropriate representation of uncertainty beyond the observed data rather than uniformly narrowing posterior uncertainty.
 
-- Under misspecification, predictive coverage could remain close to the nominal
-  95% level because the constrained models partially compensated for the
-  structural discrepancy by overestimating the observation-noise variance,
-  even when latent-function coverage deteriorated substantially.
+- Under misspecification, predictive coverage could remain close to the nominal 95% level because the constrained models partially compensated for the structural discrepancy by overestimating the observation-noise variance, even when latent-function coverage deteriorated substantially.
 
-- Under misspecification, more informative data could reinforce confidence in
-  an incorrect latent relationship: epistemic uncertainty decreased as the
-  posterior concentrated within the constrained but misspecified function
-  class, while latent-function coverage deteriorated.
+- Under misspecification, more informative data could reinforce confidence in an incorrect latent relationship: epistemic uncertainty decreased as the posterior concentrated within the constrained but misspecified function class, while latent-function coverage deteriorated.
 
-- Under partial misspecification, local monotonicity violations reduced
-  interpolation performance, although the broader directional information
-  could still benefit extrapolation in some settings.
+- Under partial misspecification, local monotonicity violations reduced interpolation performance, although the broader directional information could still benefit extrapolation in some settings.
 
 
 
@@ -50,6 +32,17 @@ monotonic-bnn/
 │   ├── smoke.yaml
 │   ├── pilot.yaml
 │   └── full.yaml
+│
+├── results/
+│   └── full/
+│       ├── figures/
+│       ├── visualization/
+│       │   ├── rep_000/
+│       │   ├── rep_001/
+│       │   └── ...
+│       ├── raw_metrics.csv
+│       ├── summary_metrics.csv
+│       └── run_config.yaml
 │
 ├── src/
 │   ├── __init__.py
@@ -73,21 +66,19 @@ monotonic-bnn/
 The main files and their roles are:
 
 - configs/*.yaml — Contains configuration files for the prior checks, smoke tests, pilot runs, and full simulation study.
+- results/full/ — Contains the outputs of the final full simulation study, including replication-level metrics, aggregated results, the run configuration, figures, and visualization data.
 - src/data.py — Generates the simulated datasets for the correctly specified, partially misspecified, and misspecified scenarios, and handles data standardization.
-
-- src/models.py — Defines the unconstrained, soft-constrained, and hard-constrained Bayesian neural network models.
-
 - src/experiment.py — Handles posterior inference, posterior prediction, and the main simulation workflow across experimental conditions and replications.
-
 - src/metrics.py — Computes predictive accuracy and uncertainty measures, interpolation/extrapolation summaries, monotonicity adherence, and MCMC diagnostics.
-
+- src/models.py — Defines the unconstrained, soft-constrained, and hard-constrained Bayesian neural network models.
 - src/prior_checks.py — Implements the prior predictive checks used to examine the behavior of the BNN priors under different prior-scale settings.
-
 - tests/ — Contains automated tests for data generation, metric calculations, and prior-check functionality.
-
 - run_prior_checks.py — Entry point for running the prior predictive checks.
-
 - run_simulation.py — Entry point for running the simulation experiments.
+
+
+Only the results from the final full simulation study are retained in the results/ directory. Given the substantial computational cost of the full simulation, these results are included for reference and verification without requiring the entire experiment to be rerun. Intermediate outputs from smoke tests, pilot runs, and prior predictive checks are excluded. However, the corresponding source code and configuration files are preserved to support reproducibility.
+
 
 ## Installation
 
@@ -160,6 +151,8 @@ Posterior inference is performed using four NUTS chains with:
 - Target acceptance probability of 0.90
 - Maximum tree depth of 10
 
+The step size is automatically adapted during the warm-up phase to target an acceptance probability of 0.90, rather than being manually specified.
+
 The simulation uses a fixed master seed to ensure reproducibility.
 
 ## CPU chains
@@ -181,6 +174,7 @@ configuration file. The principal outputs are:
 - `raw_metrics.csv`: Replication-level evaluation metrics
 - `summary_metrics.csv`: Aggregated results and Monte Carlo standard errors
 - `run_config.yaml`: Configuration used for the run
+- `visualization/`: Replication-specific outputs for visualization, organized into subdirectories (`rep_000`, `rep_001`, etc.)
 
 The reported metrics cover predictive accuracy, interval calibration,
 epistemic and aleatoric uncertainty, monotonicity adherence, and MCMC diagnostics.
