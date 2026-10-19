@@ -21,7 +21,7 @@ from .data import Standardizer, evaluation_grid, generate_dataset, true_function
 from .metrics import mcmc_diagnostics, evaluate_region, summarize_metrics
 from .models import bnn_model, posterior_derivatives, posterior_latent
 
-# Run the Bayesian neural network experiments based on the provided configuration.
+# Generate specifications for the unconstrained, soft-constrained, and hard-constrained BNNs.
 def model_specs(soft_lambdas: list[float]):
     yield "naive", "naive", np.nan
     for value in soft_lambdas:
@@ -36,7 +36,7 @@ def constraint_grid(x_std: np.ndarray, size: int) -> np.ndarray:
     aa, bb = np.meshgrid(a, b, indexing="xy")
     return np.column_stack([aa.ravel(), bb.ravel()])
 
-# Save the data for the visualization for a specific replication and experimental condition to a compressed NPZ file. But this wan't used for my thesis.
+# Save the data for the visualization for a specific replication and experimental condition to a compressed NPZ file. These outputs were not used in the thesis analysis.
 def _save_visualization_npz(
     config: dict,
     rep: int,
@@ -179,7 +179,7 @@ def run(config: dict, filters: dict[str, set[str]] | None = None) -> tuple[pd.Da
     raw = pd.DataFrame(rows)
     return raw, summarize_metrics(raw)
 
-
+# Save the raw and summarized results of the experiments to CSV files and the configuration to a YAML file in the specified output directory.
 def save_results(config: dict, raw: pd.DataFrame, summary: pd.DataFrame):
     output = Path(config["output_dir"])
     output.mkdir(parents=True, exist_ok=True)

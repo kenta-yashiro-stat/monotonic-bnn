@@ -13,7 +13,7 @@ def _interval(samples: np.ndarray, level: float = 0.95):
     alpha = (1.0 - level) / 2.0
     return np.quantile(samples, [alpha, 1.0 - alpha], axis=0)
 
-
+# Compute the Continuous Ranked Probability Score (CRPS). This metric was computed but not reported in the final thesis.
 def _crps_ensemble(samples: np.ndarray, truth: np.ndarray) -> np.ndarray:
     n = samples.shape[0]
     sorted_samples = np.sort(samples, axis=0)
@@ -67,7 +67,7 @@ def evaluate_region(
         "latent_interval_width": float(np.mean(latent_high - latent_low)),
         "latent_crps": latent_crps,
         "epistemic_variance": epistemic_variance,
-        "aleatoric_variance": aleatoric_variance, # aleatoric variance is completely same as sigma2_estimate, but keep both for clarity
+        "aleatoric_variance": aleatoric_variance, # Equal to sigma2_estimate by definition; retained for clarity.
         "predictive_variance": predictive_variance,
         "sigma2_estimate": sigma2_mean,
         "sigma2_bias": sigma2_mean - true_sigma2,

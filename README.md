@@ -47,10 +47,6 @@ monotonic-bnn/
 │   ├── models.py
 │   └── prior_checks.py
 │
-├── tests/
-│   ├── test_data_metrics.py
-│   └── test_prior_checks.py
-│
 ├── run_prior_checks.py
 ├── run_simulation.py
 ├── requirements.txt
@@ -61,18 +57,17 @@ monotonic-bnn/
 The main files and their roles are:
 
 - configs/*.yaml — Contains configuration files for the prior checks, smoke tests, pilot runs, and full simulation study.
-- results/full/ — Contains the outputs of the final full simulation study, including replication-level metrics, aggregated results, the run configuration, figures, and visualization data.
+- results/full/ — Contains the outputs of the final full simulation study, including replication-level metrics, aggregated results, and the run configuration used for the final full simulation study.
 - src/data.py — Generates the simulated datasets for the correctly specified, partially misspecified, and misspecified scenarios, and handles data standardization.
 - src/experiment.py — Handles posterior inference, posterior prediction, and the main simulation workflow across experimental conditions and replications.
 - src/metrics.py — Computes predictive accuracy and uncertainty measures, interpolation/extrapolation summaries, monotonicity adherence, and MCMC diagnostics.
 - src/models.py — Defines the unconstrained, soft-constrained, and hard-constrained Bayesian neural network models.
 - src/prior_checks.py — Implements the prior predictive checks used to examine the behavior of the BNN priors under different prior-scale settings.
-- tests/ — Contains automated tests for data generation, metric calculations, and prior-check functionality.
 - run_prior_checks.py — Entry point for running the prior predictive checks.
 - run_simulation.py — Entry point for running the simulation experiments.
 
 
-For this repository, the result tables from the final full simulation study (raw_metrics.csv and summary_metrics.csv) are retained, together with the corresponding run configuration (run_config.yaml). Given the substantial computational cost of the full simulation, these files are provided for reference and verification without requiring the entire experiment to be rerun. The large replication-specific visualization outputs, as well as intermediate results from smoke tests, pilot runs, and prior predictive checks, are excluded. However, the corresponding source code and configuration files are preserved to support reproducibility.
+For this repository, the result tables from the final full simulation study (raw_metrics.csv and summary_metrics.csv) are retained, together with the corresponding run configuration (run_config.yaml). Given the substantial computational cost of the full simulation, these files are provided for reference and verification without requiring the entire experiment to be rerun. 
 
 
 ## Installation
