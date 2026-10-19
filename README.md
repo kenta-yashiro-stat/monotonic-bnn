@@ -135,8 +135,7 @@ The design comprises 12 experimental conditions:
 - 2 sample sizes
 - 2 observation-noise levels
 
-Each condition is evaluated using five models and 50 paired simulation
-replications, resulting in $12 \times 5 \times 50 = 3{,}000$ model fits.
+Each condition is evaluated using five models and 50 paired simulation replications, resulting in $12 \times 5 \times 50 = 3{,}000$ model fits.
 
 ## Constraint implementations
 
@@ -153,28 +152,25 @@ Posterior inference is performed using four NUTS chains with:
 
 The step size is automatically adapted during the warm-up phase to target an acceptance probability of 0.90, rather than being manually specified.
 
-The simulation uses a fixed master seed to ensure reproducibility.
+The simulation uses a fixed master seed to facilitate reproducibility.
 
 ## CPU chains
 
-To run four MCMC chains in parallel on a CPU, set the following environment
-variable before starting the simulation:
+To run four MCMC chains in parallel on a CPU, set the following environment variable before starting the simulation:
 
 ```bash
-export XLA_FLAGS="--xla_force_host_platform_device_count=4"
+$env:XLA_FLAGS="--xla_force_host_platform_device_count=4"
 ```
 
 The number of host devices should generally match the number of MCMC chains.
 
 ## Outputs
 
-Results are written to the directory specified by `output_dir` in the selected
-configuration file. The principal outputs are:
+Results are written to the directory specified by `output_dir` in the selected configuration file. The principal outputs are:
 
 - `raw_metrics.csv`: Replication-level evaluation metrics
 - `summary_metrics.csv`: Aggregated results and Monte Carlo standard errors
 - `run_config.yaml`: Configuration used for the run
 - `visualization/`: Replication-specific outputs for visualization, organized into subdirectories (`rep_000`, `rep_001`, etc.)
 
-The reported metrics cover predictive accuracy, interval calibration,
-epistemic and aleatoric uncertainty, monotonicity adherence, and MCMC diagnostics.
+The reported metrics cover predictive accuracy, interval calibration, epistemic and aleatoric uncertainty, monotonicity adherence, and MCMC diagnostics.
