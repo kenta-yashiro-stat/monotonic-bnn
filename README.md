@@ -27,6 +27,7 @@ Posterior inference for all models is performed using the No-U-Turn Sampler (NUT
 
 ```text
 monotonic-bnn/
+│
 ├── configs/
 │   ├── prior_check.yaml
 │   ├── smoke.yaml
@@ -144,19 +145,9 @@ The step size is automatically adapted during the warm-up phase to target an acc
 
 The simulation uses a fixed master seed to facilitate reproducibility.
 
-## CPU chains
-
-To run four MCMC chains in parallel on a CPU, set the following environment variable before starting the simulation:
-
-```bash
-$env:XLA_FLAGS="--xla_force_host_platform_device_count=4"
-```
-
-The number of host devices should generally match the number of MCMC chains.
-
 ## Outputs
 
-Results are written to the directory specified by `output_dir` in the selected configuration file. The principal outputs are:
+Results are saved in the results/ directory. The principal outputs are:
 
 - `raw_metrics.csv`: Replication-level evaluation metrics
 - `summary_metrics.csv`: Aggregated results and Monte Carlo standard errors
